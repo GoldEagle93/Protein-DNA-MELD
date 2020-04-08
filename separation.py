@@ -30,10 +30,6 @@ for i in sel4:
 
 seqLength = int(len(sequence)/2)
 
-# f = open('sequence.dat', "w")
-# f.write(sequence[:-seqLength])
-# f.close()
-
 file='sequence.dat' 
 with open(file, 'w') as filetowrite:
      filetowrite.write(sequence[:-seqLength])
