@@ -3,33 +3,46 @@ import matplotlib
 from numpy import ones, zeros
 import sys
 
+pdb = str(sys.argv[1])
+
 # generate PDB
+def separate(pdbID):
 
-fetchPDB(sys.argv[1])
+     """
+     Generates a new PDB file from the code provided as pdbID through sys.argv[1] with the following modifications:
+     - Writes only protein and nucelic acid atoms, ommiting water molecules, ions, etc.
+     - Separates the protein and DNA using Prody by a certain distance specified in moveAtoms.
 
-atoms = parsePDB(sys.argv[1])
-sel1 = atoms.select('protein')
-sel2 = atoms.select('nucleic')
-sel3 = atoms.select('protein or nucleic')
+     Also Generates a pdbID-sequnce.dat file including the sequence of the DNA the first DNA strand.
+     """
 
-moveAtoms(sel1, by=ones(3) * 30)
+     atoms = parsePDB("./" + pdbID + "-ref.pdb")
+     sel1 = atoms.select('protein')
+     sel2 = atoms.select('nucleic or resname DA5 or resname DT5 or resname DC5 or resname DG5 or resname DA3 or resname DT3 or resname DC3 or resname DG3')
+     sel3 = atoms.select('protein or nucleic or resname DA5 or resname DT5 or resname DC5 or resname DG5 or resname DA3 or resname DT3 or resname DC3 or resname DG3')
 
-writePDB(sys.argv[1] + '-sep.pdb', sel3)
+     moveAtoms(sel1, by=ones(3) * 50)
 
-# Generate sequence.dat
+     writePDB(pdbID + '-sep.pdb', sel3)
 
-sel4 = sel2.select("name C1'")
-characters = "{'}"
-sequence = ""
+     # Generate sequence.dat
 
-for i in sel4:
-     x = str(set(i.getSequence()))
-     for j in characters:
-         x = x.replace(j, "")
-     sequence = sequence + x.upper()
+     sel4 = sel2.select("name C1'")
+     characters = "{'}"
+     sequence = ""
 
-seqLength = int(len(sequence)/2)
+     for i in sel4:
+          x = str(set(i.getSequence()))
+          for j in characters:
+               x = x.replace(j, "")
+          sequence = sequence + x.upper()
 
-file='sequence.dat' 
-with open(file, 'w') as filetowrite:
-     filetowrite.write(sequence[:-seqLength])
+     seqLength = int(len(sequence)/2)
+
+     print(sequence[:-seqLength])
+
+     file=pdbID + '-seq.dat' 
+     with open(file, 'w') as filetowrite:
+          filetowrite.write(sequence[:-seqLength])
+
+separate(pdb)
